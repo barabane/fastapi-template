@@ -5,9 +5,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.exceptions import ExpiredSignatureError, PyJWTError
 from pydantic import EmailStr
 
-from ..auth import AuthRepository, auth_repository_depends
 from ..users import User, UserRepository, user_repository_depends
 from ..utils import decode_token
+from .repository import AuthRepository, auth_repository_depends
 
 
 async def check_user_auth(
