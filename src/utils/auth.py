@@ -34,11 +34,11 @@ def decode_token(token: str):
 
 async def send_email_code(email: EmailStr):
     code = random.randint(1_000_00, 9_999_99)
-    await redis_connection.setex(email, 120, f"{code}")
+    await redis_connection.rc.setex(email, 120, f"{code}")
     send_email(f"confirmation:{email}", f"Код: {code}")
 
 
 async def send_reset_password_email_code(email: EmailStr):
     code = random.randint(1_000_00, 9_999_99)
-    await redis_connection.setex(f"reset:{email}", 300, f"{code}")
+    await redis_connection.rc.setex(f"reset:{email}", 300, f"{code}")
     send_email(email, f"Код для сброса пароля: {code}")

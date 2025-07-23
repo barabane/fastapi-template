@@ -1,5 +1,3 @@
-from .connection import connection as redis_connection
+from .connection import redis_connection
 
-__all__ = [
-    "redis_connection"
-]
+__all__ = ["redis_connection"]

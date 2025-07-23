@@ -55,7 +55,7 @@ async def logout(
     response: Response,
     user: User = user_auth_depends,
     auth_service: AuthService = auth_service_depends,
-):
+) -> None:
     await auth_service.logout(request.cookies.get("refresh_token"))  # type: ignore
     response.delete_cookie("refresh_token")
 
@@ -63,7 +63,7 @@ async def logout(
 @router.post("/reset-password")
 async def reset_password(
     email: EmailStr = email_depends, auth_service: AuthService = auth_service_depends
-):
+) -> None:
     return await auth_service.send_reset_password_code(email)
 
 
@@ -73,7 +73,7 @@ async def confirm_reset(
     credentials_dto: NewPasswordCredentialsDTO,
     email: EmailStr = email_depends,
     auth_service: AuthService = auth_service_depends,
-):
+) -> Response:
     return await auth_service.confirm_reset_password(email, code, credentials_dto)
 
 

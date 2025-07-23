@@ -15,7 +15,9 @@ from .repository import AuthRepository, auth_repository_depends
 
 class AuthService(BaseService):
     def __init__(
-        self, auth_repository: AuthRepository, user_repository: UserRepository
+        self,
+        auth_repository: AuthRepository,
+        user_repository: UserRepository,
     ):
         self.auth_repository: AuthRepository = auth_repository
         self.user_repository: UserRepository = user_repository
@@ -87,7 +89,7 @@ class AuthService(BaseService):
         await self.auth_repository.delete_refresh_session(refresh_token)
 
     async def confirm_email(self, email: EmailStr, code: int) -> None:
-        actual_code = await redis_connection.getdel(email)
+        actual_code = await redis_connection.rc.getdel(email)
 
         if actual_code is not None and int(actual_code) != code:
             raise HTTPException(status.HTTP_409_CONFLICT, "Неправильный код")
@@ -95,23 +97,23 @@ class AuthService(BaseService):
         await self.user_repository.update_one(UpdateUserDTO(status=UserStatus.ACTIVE))
 
     async def send_code(self, email: EmailStr):
-        code = await redis_connection.get(f"confirmation:{email}")
+        code = await redis_connection.rc.get(f"confirmation:{email}")
 
         if code:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                f"Новый код можно получить через: {await redis_connection.ttl(email)} с.",
+                f"Новый код можно получить через: {await redis_connection.rc.ttl(email)} с.",
             )
 
         await send_email_code(email)
 
     async def send_reset_password_code(self, email: EmailStr):
-        code = await redis_connection.get(f"reset:{email}")
+        code = await redis_connection.rc.get(f"reset:{email}")
 
         if code:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                f"Запросить повторный сброс пароля можно через: {await redis_connection.ttl(email)} с.",
+                f"Запросить повторный сброс пароля можно через: {await redis_connection.rc.ttl(email)} с.",
             )
 
         await send_reset_password_email_code(email)
@@ -119,7 +121,7 @@ class AuthService(BaseService):
     async def confirm_reset_password(
         self, email: EmailStr, code: int, credentials_dto: NewPasswordCredentialsDTO
     ) -> Response:
-        actual_code = await redis_connection.get(f"reset:{email}")
+        actual_code = await redis_connection.rc.get(f"reset:{email}")
 
         if actual_code != code:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Неверный код")
@@ -127,7 +129,7 @@ class AuthService(BaseService):
         if credentials_dto.new_password != credentials_dto.repeat_new_password:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Пароли не совпадают")
 
-        await redis_connection.getdel(f"reset:{email}")
+        await redis_connection.rc.getdel(f"reset:{email}")
 
         await self.auth_repository.update_one(
             UpdateCredentialsDTO(
