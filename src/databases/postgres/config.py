@@ -15,11 +15,12 @@ class PostgresConfig(BaseSettings):
     def url(self) -> str:
         return f"postgresql+{self.driver}://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
 
+
 postgres_config = PostgresConfig(
     driver="asyncpg",
-    host=config.DB_HOST,
-    port=config.DB_PORT,
-    user=config.DB_USER,
-    password=config.DB_PASSWORD,
-    db_name=config.DB_NAME
+    host=config.POSTGRES_HOST,
+    port=config.POSTGRES_PORT,
+    user=config.POSTGRES_USER,
+    password=config.POSTGRES_PASSWORD,
+    db_name=config.POSTGRES_DB,
 )

@@ -2,11 +2,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
-    DB_NAME: str
-    DB_HOST: str
-    DB_PORT: int
-    DB_USER: str
-    DB_PASSWORD: str
+    POSTGRES_DB: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
 
     REDIS_HOST: str
     REDIS_PORT: int
@@ -23,4 +23,5 @@ class Config(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env")
 
-config = Config() #type: ignore
+
+config = Config()  # type: ignore
